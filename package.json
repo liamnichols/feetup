@@ -1,0 +1,11 @@
+{
+  "name": "feetup",
+  "version": "0.0.1",
+  "description": "Put your feet up and let me do the work.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Liam Nichols",
+  "license": "ISC"
+}
