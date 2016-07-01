@@ -1,17 +1,14 @@
-module.exports = function(workspace, platform) {
+module.exports = function(workspace, platformName) {
     
-    // work through the platforms as we will load the build module for this platform
-    if (platform != "ios")
-    {
-        throw new Error("Unsupported platform '" + platform + "'")
-    }
-    
-    // just log what is going on
-    console.log("Loading project with target platform of '" + platform + "'")
+    // load the platform module
+    var platform = require("./platforms/" + platformName)
     
     // load the project-data module and read the data
-    var projectData = require("./project-data")(workspace)
+    var project = require("./project-data")(workspace)
     
-    // log the settings for now
-    console.log(projectData);
+    // validate the project against the platform
+    platform.validate(project)
+    
+    // build against the platform
+    platform.build(project, workspace)
 }
