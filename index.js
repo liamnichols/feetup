@@ -3,17 +3,24 @@
 // parse the arguments
 var argv = require('minimist')(process.argv.slice(2), {
     string: [ "workspace" ],
-    boolean: [ "nightly" ],
+    boolean: [ "nightly", "help" ],
     default: {
-        "nightly": false
+        "nightly": false,
+        "help": false
     }
 })
+
+// check and print help if it was requested
+if (argv.help == true) {
+    printUsage()
+    return
+}
 
 // flags on what we should be doing
 var shouldArchive = false
 var shouldTest = false
-var workspace = argv["workspace"]
-var nightly = argv["nightly"]
+var workspace = argv.workspace
+var nightly = argv.nightly
 
 // work out what actions we want to perform based on input args
 if (argv._.indexOf("test") != -1) {
