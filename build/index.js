@@ -9,12 +9,9 @@ module.exports = function(workspace, platform) {
     // just log what is going on
     console.log("Loading project with target platform of '" + platform + "'")
     
-    // load the project-data module
-    var projectData = require("./project-data")
-    
-    // read the data
-    var settings = projectData.read(workspace)
+    // load the project-data module and read the data
+    var projectData = require("./project-data")(workspace)
     
     // log the settings for now
-    console.log(settings);
+    console.log(projectData);
 }

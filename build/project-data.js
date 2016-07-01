@@ -1,7 +1,7 @@
 const path = require('path');
 
 /// Reads a project.json file from within the specified directory and returns it
-exports.read = function(workspace) {
+module.exports = function(workspace) {
     
     // get the absolute path to the json file
     var filepath = path.join(workspace, 'project.json')
