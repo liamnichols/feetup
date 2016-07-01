@@ -10,5 +10,8 @@
     "feetup": "index.js"
   },
   "author": "Liam Nichols",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "minimist": "1.2.0"
+  }
 }
