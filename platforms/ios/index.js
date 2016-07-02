@@ -1,6 +1,7 @@
 const path = require('path');
 const xcodebuild = require("./xcodebuild")
 const exporting = require("./exporting")
+const modifying = require("./modifying")
 
 /// Reads the decoded Projfile data, validate and returns any relevant data for the actions
 exports.load = function(projfile, dir) {
@@ -98,7 +99,7 @@ exports.execute = function (projfile, data, dir, opts) {
             if (opts.buildNumber > 0) {
                 
                 // set the build number in the info.plist 
-                
+                modifying.setBuildNumber(opts.buildNumber, dir, buildSettings)
             }
             
             // TODO: tag an icon if needed
