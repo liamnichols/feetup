@@ -1,4 +1,4 @@
-const child_process = require('child_process');
+const child_process = require('child_process')
 
 exports.build = function(workspacePath, schemeName, configuration, derivedDataPath, shouldClean) {
     

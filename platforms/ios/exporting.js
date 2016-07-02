@@ -2,6 +2,8 @@ const plist = require("plist")
 const fs = require("fs")
 const temp = require("temp").track()
 const xcodebuild = require("./xcodebuild")
+const child_process = require('child_process')
+const path = require('path');
 
 exports.exportIPA = function(fromArchive, toDirectory, exportOptions) {
     
@@ -18,4 +20,20 @@ exports.exportIPA = function(fromArchive, toDirectory, exportOptions) {
     
     // build the archive
     xcodebuild.exportArchive(fromArchive, toDirectory, tempFile.path)
+}
+
+exports.exportSymbols = function(fromArchive, toFile) {
+    
+    // work out the arguments for the zip command
+    var args = [
+        "-r",
+        toFile,
+        "dSYMs/"
+    ]
+    
+    // execute the zip command
+    child_process.spawnSync("zip", args, {
+        stdio: [ 0, 1, 2 ],
+        cwd: fromArchive
+    })
 }

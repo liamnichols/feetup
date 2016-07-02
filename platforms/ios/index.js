@@ -89,6 +89,7 @@ exports.execute = function (projfile, data, dir, opts) {
             var exportsPath = data.exportsPath
             var archivePath = path.join(exportsPath, schemeName, schemeName + ".xcarchive")
             var ipaPath = path.join(exportsPath, schemeName)
+            var dSYMsPath = path.join(exportsPath, schemeName, schemeName + ".dsym.zip")
             
             // TODO: reset the git repo
             
@@ -102,7 +103,8 @@ exports.execute = function (projfile, data, dir, opts) {
             // export the ipa archive
             exporting.exportIPA(archivePath, ipaPath, exportOptionsForArchive(archive))
             
-            // TODO: extract the symbols
+            // extract the symbols
+            exporting.exportSymbols(archivePath, dSYMsPath)
             
             // TODO: proces the ipa (info.plist, icon etc)
         }
