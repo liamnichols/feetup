@@ -1,6 +1,6 @@
 const path = require('path');
 const xcodebuild = require("./xcodebuild")
-const exportOptions = require("./export-options")
+const exporting = require("./exporting")
 
 /// Reads the decoded Projfile data, validate and returns any relevant data for the actions
 exports.load = function(projfile, dir) {
@@ -99,10 +99,8 @@ exports.execute = function (projfile, data, dir, opts) {
             // archive the project
             xcodebuild.archive(workspacePath, schemeName, configuration, derivedDataPath, archivePath, true)
             
-            // export the ipa archive (create a plist, export the archive then clean it up)
-            var exportOptionsPath = exportOptions.create(exportOptionsForArchive(archive))
-            xcodebuild.exportArchive(archivePath, ipaPath, exportOptionsPath)
-            exportOptions.cleanup(exportOptionsPath)
+            // export the ipa archive
+            exporting.exportIPA(archivePath, ipaPath, exportOptionsForArchive(archive))
             
             // TODO: extract the symbols
             

@@ -96,6 +96,7 @@ try {
     
 } catch (err) {
     
+    throw err
     // log and exit
     console.error("Unable to load valid platform: " + platform)
     console.error(err.message);
