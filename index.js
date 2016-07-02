@@ -106,8 +106,11 @@ try {
 
 // execute tasks or the specific platform
 platformModule.execute(projfile, platformData, workspace, {
-    test: shouldTest,
-    archive: shouldArchive
+    nightly: nightly,
+    actions: {
+        test: shouldTest,
+        archive: shouldArchive
+    },
 })
 
 // TODO: we want to perform post build actions here

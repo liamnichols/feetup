@@ -21,13 +21,13 @@ exports.load = function(projfile, dir) {
 }
 
 /// Executes tasks for this platform
-exports.execute = function (projfile, data, dir, actions) {
+exports.execute = function (projfile, data, dir, opts) {
     
     // to save us reading the whole projfile each time
     var ios = projfile.platforms.ios
     
     // if we want to test
-    if (actions.test == true) {
+    if (opts.actions.test == true) {
         
         // make sure there are test schemes defined in the Projfile as we require at least one
         if (ios.tests.schemes.count == 0) {
@@ -63,7 +63,47 @@ exports.execute = function (projfile, data, dir, actions) {
         }
     }
     
-    // TODO: archive where needed
+    // check if we also want to perform an acrhive 
+    if (opts.actions.archive == true) {
+        
+        // read the archives from the projfile
+        var archives = archivesFromProjfile(projfile, opts)
+        
+        // make sure we actually have some
+        if (archives.count == 0) {
+            throw new Error("Attempting to run action action but Projfile doesn't specify any archives to run for this configuration.")
+        }
+        
+        // enumerate each archive to perform the actions
+        for (archive of archives) {
+            
+            // find the scheme
+            var scheme = findScheme(archive.scheme, data.workspace)
+            
+            // get any variables we need
+            var workspacePath = data.workspace.path
+            var schemeName = scheme.name
+            var configuration = scheme.actions.test.configuration
+            var derivedDataPath = data.derivedDataPath
+            var exportsPath = data.exportsPath
+            var archivePath = exportsPath // TODO: work this out
+            
+            // TODO: reset the git repo
+            
+            // TODO: set the build number
+            
+            // TODO: tag an icon if needed
+            
+            // TODO: archive the project
+            xcodebuild.archive(workspacePath, schemeName, configuration, derivedDataPath, archivePath, true)
+            
+            // TODO: process the archive (symbols)
+            
+            // TODO: export the archive
+            
+            // TODO: proces the ipa (info.plist, icon etc)
+        }
+    }
 }
 
 function findScheme(name, workspace) {
@@ -89,4 +129,24 @@ function findScheme(name, workspace) {
     
     // throw an error as we couldn't find the scheme
     throw new Error("Unable to find scheme named '" + name + "'. Is it shared in the .xcodeproj?")
+}
+
+function archivesFromProjfile(projfile, opts) {
+    
+    // somewhere to store them
+    var archives = Array()
+    
+    // enumerate each archive
+    for (archive of projfile.platforms.ios.archives) {
+        
+        // filter against nightly
+        if (opts.nightly == (archive.nightly == true)) {
+            
+            // add to the return Array
+            archives.push(archive)
+        }
+    }
+    
+    // return the archives
+    return archives
 }
