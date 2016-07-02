@@ -29,10 +29,21 @@ module.exports = function(bundlePath) {
     })
     
     // array of files
-    var files = Array()
+    var files = resolveFilesFromXML(xml, path.dirname(bundlePath))
+    var projects = reolveProjectsFromFiles(files) 
     
-    // the directory of the xcworkspace
-    var bundleDir = path.dirname(bundlePath)
+    // return the files 
+    return {
+        path: bundlePath,
+        files: files,
+        projects: projects
+    }
+}
+
+function resolveFilesFromXML(xml, workspaceDir) {
+    
+    // somewhere to store the files
+    var files = Array()
     
     // now we need to convert each file ref to a absolute filepath
     for (fileRef of xml.Workspace.FileRef) {
@@ -43,8 +54,20 @@ module.exports = function(bundlePath) {
         // we currently only support group: locations
         if (location.startsWith("group:")) {
             
-            // append it to the workspace dir
-            files.push(path.join(bundleDir, location.substring(6, location.length)))
+            // resolve path comps
+            var filepath = path.join(workspaceDir, location.substring(6, location.length))
+            var type = path.extname(filepath)
+            
+            // strip the . if we have if
+            if (type.startsWith(".")) {
+                type = type.substring(1, type.length)
+            }
+            
+            // add to the files Array
+            files.push({
+                path: filepath,
+                type: type
+            })
             
         } else {
             
@@ -53,9 +76,52 @@ module.exports = function(bundlePath) {
         }
     }
     
-    // return the files 
-    return {
-        path: bundlePath,
-        files: files
+    // return the files
+    return files
+}
+
+function reolveProjectsFromFiles(files) {
+    
+    // try to load the module
+    var xcodeproj = loadXcodeprojModule()
+    
+    // we couldn't load the module so don't resolve projects
+    if (xcodeproj == null) {
+        return
+    }
+    
+    // somewhere to hold the projects
+    var projects = Array()
+    
+    // enumerate each file
+    for (file of files) {
+        
+        // check if the file was a project
+        if (file.type == "xcodeproj") {
+            
+            // push the loaded xcodeproj
+            projects.push(xcodeproj(file.path))
+        }
+    }
+    
+    // return any loaded projects
+    return projects
+}
+
+function loadXcodeprojModule() {
+    
+    // we don't want to throw anything as this is only optional
+    try {
+        
+        // return the module, it was fine
+        return require("./xcodeproj")
+        
+    } catch (err) {
+        
+        // log the error
+        console.warn("[xcworkspace] Unable to load xcodeproj module: ", err)
+        
+        // just return null
+        return null
     }
 }
