@@ -102,8 +102,19 @@ try {
     process.exit(ERR_LOAD_PLATFORM)
 }
 
-// we can execute the tasks now
-console.log("Loaded platform data: ", platformData)
+// TODO: if we're archiving, we want to zip up the workspace
+
+// execute tasks or the specific platform
+platformModule.execute(projfile, platformData, workspace, {
+    test: shouldTest,
+    archive: shouldArchive
+})
+
+// TODO: we want to perform post build actions here
+
+
+
+
 
 
 

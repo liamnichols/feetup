@@ -65,7 +65,7 @@ function parseScheme(schemePath) {
     // only parse the bits we want here
     return {
         path: schemePath,
-        shared: true,
+        name: path.basename(schemePath, ".xcscheme"),
         actions: {
             test: {
                 configuration: xml.Scheme.TestAction[0].$.buildConfiguration
