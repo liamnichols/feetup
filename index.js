@@ -2,6 +2,7 @@
 
 const ERR_USAGE = 4001
 const ERR_PROJFILE = 4002
+const ERR_LOAD_PLATFORM = 4003
 
 // parse the arguments
 var argv = require('minimist')(process.argv.slice(2), {
@@ -82,10 +83,27 @@ try {
     process.exit(ERR_PROJFILE)
 }
 
+// load the platform and validate
+var platformModule
+var platformData 
+try {
+    
+    // try to load the module
+    platformModule = require("./platforms/" + platform)
+    
+    // validate the loaded module
+    platformData =  platformModule.load(projfile, workspace)
+    
+} catch (err) {
+    
+    // log and exit
+    console.error("Unable to load valid platform: " + platform)
+    console.error(err.message);
+    process.exit(ERR_LOAD_PLATFORM)
+}
 
-
-
-
+// we can execute the tasks now
+console.log("Loaded platform data: ", platformData)
 
 
 
