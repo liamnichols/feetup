@@ -11,7 +11,10 @@ exports.load = function(projfile, dir) {
     // resolve the .xcworkspace file defined in the project
     var workspace = require("./xcworkspace")(path.join(dir, projfile.platforms.ios.workspace))
     
-    console.log("[ios] Read workspace: ", workspace)
+    // return the loaded info
+    return {
+        workspace: workspace
+    }
 }
 
 /// The archive action for this platform
