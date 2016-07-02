@@ -65,6 +65,7 @@ function parseScheme(schemePath) {
     // only parse the bits we want here
     return {
         path: schemePath,
+        shared: true,
         actions: {
             test: {
                 configuration: xml.Scheme.TestAction[0].$.buildConfiguration

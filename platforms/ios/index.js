@@ -11,8 +11,7 @@ exports.load = function(projfile, dir) {
     // resolve the .xcworkspace file defined in the project
     var workspace = require("./xcworkspace")(path.join(dir, projfile.platforms.ios.workspace))
     
-    console.log("[ios] Read workspace:")
-    console.log(workspace.projects[0].sharedSchemes)
+    console.log("[ios] Read workspace: ", workspace)
 }
 
 /// The archive action for this platform
