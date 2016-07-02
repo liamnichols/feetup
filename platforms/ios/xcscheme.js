@@ -1,8 +1,8 @@
-const path = require('path');
-const fs = require('fs');
+const path = require('path')
+const fs = require('fs')
 
 /// finds all the schemes within an xcproject bundle.
-exports.schemesFromProject = function (dir) {
+exports.read = function (dir) {
     
     // get the shared schemes
     var sharedSchemes = resolveSchemesInDirectory(path.join(dir, "xcshareddata/xcschemes"), true)
