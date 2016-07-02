@@ -27,6 +27,7 @@ var shouldTest = false
 var workspace = argv.workspace
 var nightly = argv.nightly
 var platform = argv.platform
+var buildNumber = parseInt(argv.buildNumber)
 
 // work out what actions we want to perform based on input args
 if (argv._.indexOf("test") != -1) {
@@ -34,6 +35,11 @@ if (argv._.indexOf("test") != -1) {
 } 
 if (argv._.indexOf("archive") != -1) {
     shouldArchive = true
+}
+
+// cleanse build number
+if (buildNumber <= 0) {
+    buildNumber = null
 }
 
 // validate usage
@@ -107,6 +113,7 @@ try {
 // execute tasks or the specific platform
 platformModule.execute(projfile, platformData, workspace, {
     nightly: nightly,
+    buildNumber: buildNumber,
     actions: {
         test: shouldTest,
         archive: shouldArchive

@@ -90,10 +90,16 @@ exports.execute = function (projfile, data, dir, opts) {
             var archivePath = path.join(exportsPath, schemeName, schemeName + ".xcarchive")
             var ipaPath = path.join(exportsPath, schemeName)
             var dSYMsPath = path.join(exportsPath, schemeName, schemeName + ".dsym.zip")
+            var buildSettings = xcodebuild.getBuildSettings(workspacePath, schemeName, configuration)
             
             // TODO: reset the git repo
             
-            // TODO: set the build number
+            // check if we've passed in a build number
+            if (opts.buildNumber > 0) {
+                
+                // set the build number in the info.plist 
+                
+            }
             
             // TODO: tag an icon if needed
             
