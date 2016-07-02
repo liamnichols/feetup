@@ -16,7 +16,7 @@ exports.load = function(projfile, dir) {
     return {
         workspace: workspace,
         derivedDataPath: path.join(dir, "DerivedData"),
-        exportsPath: path.join(dir, "build/EXPORTS")
+        exportsPath: path.join(dir, "build/feetup/exports")
     }
 }
 
@@ -86,7 +86,7 @@ exports.execute = function (projfile, data, dir, opts) {
             var configuration = scheme.actions.test.configuration
             var derivedDataPath = data.derivedDataPath
             var exportsPath = data.exportsPath
-            var archivePath = exportsPath // TODO: work this out
+            var archivePath = path.join(exportsPath, schemeName, schemeName + ".xcarchive")
             
             // TODO: reset the git repo
             
