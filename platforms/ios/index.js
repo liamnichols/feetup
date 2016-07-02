@@ -1,5 +1,6 @@
 const path = require('path');
 const xcodebuild = require("./xcodebuild")
+const exportOptions = require("./export-options")
 
 /// Reads the decoded Projfile data, validate and returns any relevant data for the actions
 exports.load = function(projfile, dir) {
@@ -87,6 +88,7 @@ exports.execute = function (projfile, data, dir, opts) {
             var derivedDataPath = data.derivedDataPath
             var exportsPath = data.exportsPath
             var archivePath = path.join(exportsPath, schemeName, schemeName + ".xcarchive")
+            var ipaPath = path.join(exportsPath, schemeName)
             
             // TODO: reset the git repo
             
@@ -94,12 +96,15 @@ exports.execute = function (projfile, data, dir, opts) {
             
             // TODO: tag an icon if needed
             
-            // TODO: archive the project
+            // archive the project
             xcodebuild.archive(workspacePath, schemeName, configuration, derivedDataPath, archivePath, true)
             
-            // TODO: process the archive (symbols)
+            // export the ipa archive (create a plist, export the archive then clean it up)
+            var exportOptionsPath = exportOptions.create(exportOptionsForArchive(archive))
+            xcodebuild.exportArchive(archivePath, ipaPath, exportOptionsPath)
+            exportOptions.cleanup(exportOptionsPath)
             
-            // TODO: export the archive
+            // TODO: extract the symbols
             
             // TODO: proces the ipa (info.plist, icon etc)
         }
@@ -149,4 +154,21 @@ function archivesFromProjfile(projfile, opts) {
     
     // return the archives
     return archives
+}
+
+function exportOptionsForArchive(archive) {
+    
+    // check for the export options
+    if (archive.exportoptions != null) {
+        
+        // return the user defined options
+        return exportoptions
+        
+    } else {
+        
+        // return the default options
+        return {
+            method: "same-as-archive"
+        }
+    }
 }
