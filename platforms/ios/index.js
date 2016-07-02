@@ -106,7 +106,10 @@ exports.execute = function (projfile, data, dir, opts) {
             // extract the symbols
             exporting.exportSymbols(archivePath, dSYMsPath)
             
-            // TODO: proces the ipa (info.plist, icon etc)
+            // optimize the archive (compress and delete)
+            exporting.optimizeArchive(archivePath)
+            
+            // TODO: process the ipa (extract info.plist, icon etc)
         }
     }
 }

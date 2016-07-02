@@ -37,3 +37,27 @@ exports.exportSymbols = function(fromArchive, toFile) {
         cwd: fromArchive
     })
 }
+
+exports.optimizeArchive = function(archive) {
+    
+    // get the name
+    var name = path.basename(archive)
+    
+    // work out the arguments for the zip command
+    var args = [
+        "-r",
+        name + ".zip",
+        name 
+    ]
+    
+    // execute the zip command
+    child_process.spawnSync("zip", args, {
+        stdio: [ 0, 1, 2 ],
+        cwd: path.dirname(archive)
+    })
+    
+    // delete the original .xcarchive
+    child_process.spawnSync("rm", [ "-rf", archive ], {
+        stdio: [ 0, 1, 2 ],
+    })
+}
