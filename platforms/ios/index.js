@@ -2,6 +2,7 @@ const path = require('path');
 const xcodebuild = require("./xcodebuild")
 const exporting = require("./exporting")
 const modifying = require("./modifying")
+const XcodeWorkspace = require("./xcworkspace")
 
 /// Reads the decoded Projfile data, validate and returns any relevant data for the actions
 exports.load = function(projfile, dir) {
@@ -12,7 +13,7 @@ exports.load = function(projfile, dir) {
     } 
     
     // resolve the .xcworkspace file defined in the project
-    var workspace = require("./xcworkspace")(path.join(dir, projfile.platforms.ios.workspace))
+    var workspace = new XcodeWorkspace(path.join(dir, projfile.platforms.ios.workspace))
     
     // return the loaded info
     return {
@@ -127,10 +128,10 @@ function findScheme(name, workspace) {
     for (project of workspace.projects) {
         
         // make sure this project has schemes
-        if (project.sharedSchemes) {
+        if (project.schemes) {
             
             // enumerate the projects schemes
-            for (scheme of project.sharedSchemes) {
+            for (scheme of project.schemes) {
                 
                 // check the name
                 if (scheme.name == name) {

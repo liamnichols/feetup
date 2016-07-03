@@ -1,13 +1,15 @@
 const xcscheme = require('./xcscheme.js')
-const pbxproj = require('./pbxproj.js')
+const PBXProj = require('./pbxproj.js')
 
 /// Loads a .xcodeproj file at the specified path
 module.exports = function(bundlePath) {
     
-    // return the xcodeproj object
-    return {
-        path: bundlePath,
-        schemes: xcscheme.read(bundlePath),
-        pbxproj: pbxproj.readRootObject(bundlePath)
-    }
+    // load the pbxproj
+    var pbxproj = new PBXProj(bundlePath)
+    
+    // store properties on the XcodeProject (join schemes with the pbxproj stuff)
+    this.path = bundlePath
+    this.schemes = xcscheme.read(bundlePath)
+    this.targets = pbxproj.targets
+    this.navigator = pbxproj.mainGroup
 }

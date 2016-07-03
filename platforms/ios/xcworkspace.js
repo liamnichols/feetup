@@ -1,4 +1,5 @@
 const path = require('path');
+const XcodeProject = require("./xcodeproj")
 
 /// Loads a .xcworkspace file at the specified path
 module.exports = function(bundlePath) {
@@ -30,14 +31,10 @@ module.exports = function(bundlePath) {
     
     // array of files
     var files = resolveFilesFromXML(xml, path.dirname(bundlePath))
-    var projects = reolveProjectsFromFiles(files) 
     
-    // return the files 
-    return {
-        path: bundlePath,
-        files: files,
-        projects: projects
-    }
+    // set the properties
+    this.path = bundlePath
+    this.projects = reolveProjectsFromFiles(files) 
 }
 
 function resolveFilesFromXML(xml, workspaceDir) {
@@ -82,14 +79,6 @@ function resolveFilesFromXML(xml, workspaceDir) {
 
 function reolveProjectsFromFiles(files) {
     
-    // try to load the module
-    var xcodeproj = loadXcodeprojModule()
-    
-    // we couldn't load the module so don't resolve projects
-    if (xcodeproj == null) {
-        return
-    }
-    
     // somewhere to hold the projects
     var projects = Array()
     
@@ -100,28 +89,10 @@ function reolveProjectsFromFiles(files) {
         if (file.type == "xcodeproj") {
             
             // push the loaded xcodeproj
-            projects.push(xcodeproj(file.path))
+            projects.push(new XcodeProject(file.path))
         }
     }
     
     // return any loaded projects
     return projects
-}
-
-function loadXcodeprojModule() {
-    
-    // we don't want to throw anything as this is only optional
-    try {
-        
-        // return the module, it was fine
-        return require("./xcodeproj")
-        
-    } catch (err) {
-        
-        // log the error
-        console.warn("[xcworkspace] Unable to load xcodeproj module: ", err)
-        
-        // just return null
-        return null
-    }
 }
