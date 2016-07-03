@@ -3,6 +3,7 @@ const xcodebuild = require("./xcodebuild")
 const exporting = require("./exporting")
 const modifying = require("./modifying")
 const XcodeWorkspace = require("./xcworkspace")
+const repo = require("../repo")
 
 /// Reads the decoded Projfile data, validate and returns any relevant data for the actions
 exports.load = function(projfile, dir) {
@@ -97,8 +98,9 @@ exports.execute = function (projfile, data, dir, opts) {
             var buildSettings = xcodebuild.getBuildSettings(workspacePath, schemeName, configuration)
             var targets = project.getBuildTargetsForScheme(scheme, "archiving")
             
-            // TODO: reset the git repo
-            
+            // reset the git repo
+            repo.reset(dir)
+                
             // check if we've passed in a build number
             if (opts.buildNumber > 0) {
                 
