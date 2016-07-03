@@ -106,7 +106,8 @@ exports.execute = function (projfile, data, dir, opts) {
                 modifying.setBuildNumber(opts.buildNumber, dir, buildSettings, targets)
             }
             
-            // TODO: tag an icon if needed
+            // tag an icon if needed
+            modifying.tagAppIconInProject(project, buildSettings, targets)
             
             // archive the project
             xcodebuild.archive(workspacePath, schemeName, configuration, derivedDataPath, archivePath, true)

@@ -158,7 +158,7 @@ module.exports = function(dir) {
     function PBXBuildPhase(id) {
         
         // track the type
-        this.type = data.objects[id].isa
+        this.isa = data.objects[id].isa
         
         // set the files if we have any
         if (data.objects[id].files != null) {
@@ -180,6 +180,18 @@ module.exports = function(dir) {
         if (data.objects[id].buildPhases != null) {
             this.buildPhases = data.objects[id].buildPhases.map(function(id) { return new PBXBuildPhase(id) })
         }
+        
+        // function to resolve a specific build phase type
+        this.buildPhaseWithType = function(isa) {
+            
+            for (buildPhase of this.buildPhases) {
+                if (buildPhase.isa == isa) {
+                    return buildPhase
+                }
+            }
+            
+            return null
+        }
     }
     
     // the file object
@@ -189,6 +201,7 @@ module.exports = function(dir) {
         this.isa = data.objects[id].isa
         this.name = data.objects[id].name
         this.path = data.objects[id].path
+        this.lastKnownFileType = data.objects[id].lastKnownFileType
         this.sourceTree = data.objects[id].sourceTree
         this.getParent = function() { return groupHelper.getParent(this) }
         this.getDisplayName = function() { return groupHelper.resolveDisplayName(this) }
