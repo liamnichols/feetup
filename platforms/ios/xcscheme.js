@@ -13,17 +13,21 @@ exports.read = function (dir) {
     // storage for user schemes
     var userSchemes = Array()
     
-    // read the directories in the shared dir
-    for (userDir of fs.readdirSync(userDataDir)) {
+    // check the user data dir exists
+    if (fs.existsSync(userDataDir)) {
         
-        // check it ends with the correct extension
-        if (userDir.endsWith(".xcuserdatad")) {
+        // read the directories in the shared dir
+        for (userDir of fs.readdirSync(userDataDir)) {
             
-            // get all the schemes within the specific user dir
-            var schemes = resolveSchemesInDirectory(path.join(userDataDir, userDir, "xcschemes"), false)
-            
-            // append them to the user schemes
-            userSchemes = userSchemes.concat(schemes)
+            // check it ends with the correct extension
+            if (userDir.endsWith(".xcuserdatad")) {
+                
+                // get all the schemes within the specific user dir
+                var schemes = resolveSchemesInDirectory(path.join(userDataDir, userDir, "xcschemes"), false)
+                
+                // append them to the user schemes
+                userSchemes = userSchemes.concat(schemes)
+            }
         }
     }
     

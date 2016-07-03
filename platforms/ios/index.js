@@ -30,6 +30,13 @@ exports.execute = function (projfile, data, dir, opts) {
     // to save us reading the whole projfile each time
     var ios = projfile.platforms.ios
     
+    // if we're archiving, first thing we do is zip up the entire repo.
+    if (opts.actions.archive == true) {
+        
+        // zip up the repo
+        repo.archive(dir, path.join(data.exportsPath, "source.zip"))
+    }
+    
     // if we want to test
     if (opts.actions.test == true) {
         

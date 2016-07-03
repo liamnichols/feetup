@@ -108,7 +108,7 @@ try {
     process.exit(ERR_LOAD_PLATFORM)
 }
 
-// TODO: if we're archiving, we want to zip up the workspace
+// TODO: any generic pre-build actions should go here
 
 // execute tasks or the specific platform
 platformModule.execute(projfile, platformData, workspace, {
