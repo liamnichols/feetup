@@ -81,7 +81,9 @@ exports.execute = function (projfile, data, dir, opts) {
         for (archive of archives) {
             
             // find the scheme
-            var scheme = findScheme(archive.scheme, data.workspace)
+            var res = findSchemeAndProject(archive.scheme, data.workspace)
+            var scheme = res[0]
+            var project = res[1]
             
             // get any variables we need
             var workspacePath = data.workspace.path
@@ -93,6 +95,7 @@ exports.execute = function (projfile, data, dir, opts) {
             var ipaPath = path.join(exportsPath, schemeName)
             var dSYMsPath = path.join(exportsPath, schemeName, schemeName + ".dsym.zip")
             var buildSettings = xcodebuild.getBuildSettings(workspacePath, schemeName, configuration)
+            var targets = project.getBuildTargetsForScheme(scheme, "archiving")
             
             // TODO: reset the git repo
             
@@ -100,7 +103,7 @@ exports.execute = function (projfile, data, dir, opts) {
             if (opts.buildNumber > 0) {
                 
                 // set the build number in the info.plist 
-                modifying.setBuildNumber(opts.buildNumber, dir, buildSettings)
+                modifying.setBuildNumber(opts.buildNumber, dir, buildSettings, targets)
             }
             
             // TODO: tag an icon if needed
@@ -124,22 +127,22 @@ exports.execute = function (projfile, data, dir, opts) {
 
 function findScheme(name, workspace) {
     
+    return findSchemeAndProject(name, workspace)[0]
+}
+
+function findSchemeAndProject(name, workspace) {
+    
     // enumerate each project
     for (project of workspace.projects) {
         
-        // make sure this project has schemes
-        if (project.schemes) {
-            
-            // enumerate the projects schemes
-            for (scheme of project.schemes) {
-                
-                // check the name
-                if (scheme.name == name) {
-                    
-                    // return the scheme
-                    return scheme
-                }
-            }
+        // get the scheme
+        var scheme = project.schemeWithName(name) 
+        
+        // check if we found it
+        if (scheme != null) {
+        
+            // reutrn the scheme
+            return [scheme, project]
         }
     }
     
