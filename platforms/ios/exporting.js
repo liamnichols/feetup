@@ -61,3 +61,21 @@ exports.optimizeArchive = function(archive) {
         stdio: [ 0, 1, 2 ],
     })
 }
+
+exports.writeProjfileToDir = function(projfile, dir) {
+    
+    // check the dir exists
+    if (!fs.existsSync(dir)) {
+        
+        // create it if not
+        child_process.spawnSync("mkdir", [ "-p", dir ], {
+            stdio: [ 0, 1, 2 ]
+        })
+    }    
+    
+    // parse the projfile back to json
+    var json = JSON.stringify(projfile, null, 4)
+    
+    // write the json to file
+    fs.writeFileSync(path.join(dir, "Projfile"), json)
+}

@@ -132,6 +132,13 @@ exports.execute = function (projfile, data, dir, opts) {
             
             // TODO: process the ipa (extract info.plist, icon etc)
         }
+        
+        // write projfile out to exports for reference later
+        exporting.writeProjfileToDir(projfile, data.exportsPath)
+        
+        // TODO: attempt hockey upload here?
+        
+        // TODO: export built products into some other system here.
     }
 }
 
