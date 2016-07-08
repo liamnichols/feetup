@@ -41,10 +41,10 @@ exports.setBuildNumber = function(buildNumber, dir, buildSettings, targets) {
         })
         
         // check for errors
-        if (output.error != null) {
+        if (output.status != 1) {
             
-            // throw the error
-            throw output.error
+            // throw 
+            throw new Error("child_process exited with code '" + output.status + "'. Error:", output.error)
         }
     }
 }

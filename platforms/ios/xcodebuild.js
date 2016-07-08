@@ -97,10 +97,10 @@ exports.getBuildSettings = function(workspacePath, schemeName, configuration) {
     var output = child_process.spawnSync("xcodebuild", args)
     
     // check for errors
-    if (output.error != null) {
+    if (output.status != 1) {
         
-        // throw the error
-        throw output.error
+        // throw 
+        throw new Error("child_process exited with code '" + output.status + "'. Error:", output.error)
     }
     
     // parse stdout into each individual line
@@ -172,10 +172,10 @@ function xcodebuildWithArgs(args) {
     console.log("[xcodebuild] Finished with error:", output.error)
     
     // check for errors
-    if (output.error != null) {
+    if (output.status != 1) {
         
         // throw 
-        throw output.error
+        throw new Error("child_process exited with code '" + output.status + "'. Error:", output.error)
     }
 }
 
