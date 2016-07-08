@@ -167,6 +167,10 @@ function xcodebuildWithArgs(args) {
         stdio: [ 0, 1, 2 ]
     })
     
+    // log
+    console.log("[xcodebuild] Finished with status:", output.status)
+    console.log("[xcodebuild] Finished with error:", output.error)
+    
     // check for errors
     if (output.error != null) {
         
