@@ -7,13 +7,13 @@ exports.reset = function(dir) {
     console.log("[repo] Resetting", dir)
     
     // reset the repo
-    child_process.spawnSync("git", [ "reset", "--hard" ], {
+    spawnSyncAndThrow("git", [ "reset", "--hard" ], {
         stdio: [ 0, 1, 2 ],
         cwd: dir
     })
     
     // clean everything apart from the build dir
-    child_process.spawnSync("git", [ "clean", "-fdx", "-e", "build/" ], {
+    spawnSyncAndThrow("git", [ "clean", "-fdx", "-e", "build/" ], {
         stdio: [ 0, 1, 2 ],
         cwd: dir
     })
@@ -30,14 +30,27 @@ exports.archive = function(dir, toFile) {
     if (!fs.existsSync(toDir)) {
         
         // create it
-        child_process.spawnSync("mkdir", [ "-p", toDir ], {
+        spawnSyncAndThrow("mkdir", [ "-p", toDir ], {
             stdio: [ 0, 1, 2 ]
         })
     }    
     
     // zip the repo
-    child_process.spawnSync("zip", [ "-r", toFile, ".", "-x", "*.git*" ], {
+    spawnSyncAndThrow("zip", [ "-r", toFile, ".", "-x", "*.git*" ], {
         stdio: [ 0, 1, 2 ],
         cwd: dir
     })
+}
+
+function spawnSyncAndThrow(cmd, args, opts) {
+    
+    // run the command
+    var output = child_process.spawnSync(cmd, args, opts)
+    
+    // check for errors
+    if (output.error != null) {
+        
+        // throw the error
+        throw output.error
+    }
 }

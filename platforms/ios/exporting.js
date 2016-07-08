@@ -32,7 +32,7 @@ exports.exportSymbols = function(fromArchive, toFile) {
     ]
     
     // execute the zip command
-    child_process.spawnSync("zip", args, {
+    spawnSyncAndThrow("zip", args, {
         stdio: [ 0, 1, 2 ],
         cwd: fromArchive
     })
@@ -51,13 +51,14 @@ exports.optimizeArchive = function(archive) {
     ]
     
     // execute the zip command
-    child_process.spawnSync("zip", args, {
+    spawnSyncAndThrow("zip", args, {
         stdio: [ 0, 1, 2 ],
         cwd: path.dirname(archive)
     })
     
+    
     // delete the original .xcarchive
-    child_process.spawnSync("rm", [ "-rf", archive ], {
+    spawnSyncAndThrow("rm", [ "-rf", archive ], {
         stdio: [ 0, 1, 2 ],
     })
 }
@@ -68,7 +69,7 @@ exports.writeProjfileToDir = function(projfile, dir) {
     if (!fs.existsSync(dir)) {
         
         // create it if not
-        child_process.spawnSync("mkdir", [ "-p", dir ], {
+        spawnSyncAndThrow("mkdir", [ "-p", dir ], {
             stdio: [ 0, 1, 2 ]
         })
     }    
@@ -78,4 +79,17 @@ exports.writeProjfileToDir = function(projfile, dir) {
     
     // write the json to file
     fs.writeFileSync(path.join(dir, "Projfile"), json)
+}
+
+function spawnSyncAndThrow(cmd, args, opts) {
+    
+    // run the command
+    var output = child_process.spawnSync(cmd, args, opts)
+    
+    // check for errors
+    if (output.error != null) {
+        
+        // throw the error
+        throw output.error
+    }
 }

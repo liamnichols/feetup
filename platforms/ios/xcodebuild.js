@@ -96,6 +96,13 @@ exports.getBuildSettings = function(workspacePath, schemeName, configuration) {
     // run the command to get the settings
     var output = child_process.spawnSync("xcodebuild", args)
     
+    // check for errors
+    if (output.error != null) {
+        
+        // throw the error
+        throw output.error
+    }
+    
     // parse stdout into each individual line
     var lines = String(output.stdout).split("\n")
     
@@ -156,9 +163,16 @@ function xcodebuildWithArgs(args) {
     console.log(args.join(" "))
     
     // run it 
-    child_process.spawnSync("xcodebuild", args, {
+    var output = child_process.spawnSync("xcodebuild", args, {
         stdio: [ 0, 1, 2 ]
     })
+    
+    // check for errors
+    if (output.error != null) {
+        
+        // throw 
+        throw output.error
+    }
 }
 
 function getBuildSettingPairFromBuildSettingLine(line) {

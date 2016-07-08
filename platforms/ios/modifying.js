@@ -36,9 +36,16 @@ exports.setBuildNumber = function(buildNumber, dir, buildSettings, targets) {
         ]
         
         // update the value
-        child_process.spawnSync("plutil", args, {
+        var output = child_process.spawnSync("plutil", args, {
             stdio: [ 0, 1, 2 ]
         })
+        
+        // check for errors
+        if (output.error != null) {
+            
+            // throw the error
+            throw output.error
+        }
     }
 }
 
