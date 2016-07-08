@@ -30,6 +30,10 @@ exports.execute = function (projfile, data, dir, opts) {
     // to save us reading the whole projfile each time
     var ios = projfile.platforms.ios
     
+    // TODO: Select the correct version of xcode. 
+    
+    // TODO: Unlock the keychain?
+    
     // if we're archiving, first thing we do is zip up the entire repo.
     if (opts.actions.archive == true) {
         

@@ -26,8 +26,6 @@ exports.archive = function(dir, toFile) {
     // work out the toDir to check it exists
     var toDir = path.dirname(toFile)
     
-    console.log("mkdir", toDir)
-    
     // check it
     if (!fs.existsSync(toDir)) {
         
