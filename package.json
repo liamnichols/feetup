@@ -1,20 +1,21 @@
 {
-  "name": "feetup",
-  "version": "0.0.1",
-  "description": "Put your feet up and let me do the work.",
-  "preferGlobal": true,
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "bin": {
-    "feetup": "index.js"
-  },
-  "author": "Liam Nichols",
-  "license": "ISC",
-  "dependencies": {
-    "minimist": "1.2.0",
-    "plist": "1.2.0",
-    "temp": "0.8.3",
-    "xml2js": "0.4.16"
-  }
+    "name": "feetup",
+    "version": "0.0.1",
+    "description": "Put your feet up and let me do the work.",
+    "preferGlobal": true,
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "bin": {
+        "feetup": "index.js"
+    },
+    "author": "Liam Nichols",
+    "license": "ISC",
+    "dependencies": {
+        "minimist": "1.2.0",
+        "plist": "1.2.0",
+        "temp": "0.8.3",
+        "xml2js": "0.4.16"
+    },
+    "repository": "github:liamnichols/feetup"
 }
