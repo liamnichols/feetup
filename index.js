@@ -28,6 +28,7 @@ var workspace = argv.workspace
 var nightly = argv.nightly
 var platform = argv.platform
 var buildNumber = parseInt(argv.buildNumber)
+var jobName = argv.jobName
 
 // work out what actions we want to perform based on input args
 if (argv._.indexOf("test") != -1) {
@@ -72,6 +73,8 @@ console.log("Options:")
 console.log("  nightly: " + nightly)
 console.log("  workspace: " + workspace)
 console.log("  platform: " + platform)
+console.log("  buildNumber: " + buildNumber)
+console.log("  jobName: " + jobName)
 console.log("")
 
 // read the profjile
@@ -107,6 +110,8 @@ try {
     console.error(err.message);
     process.exit(ERR_LOAD_PLATFORM)
 }
+
+// TODO: work out the output directory for built products and pass it in the options
 
 // TODO: any generic pre-build actions should go here
 
@@ -153,5 +158,7 @@ function printUsage(err) {
     console.log("  Options:")
     console.log("    --workspace    Required. The directory containing the Projfile")
     console.log("    --nightly      Optional. When specified, the archive action will work with the special nightly build configuration defined in the Projfile")
+    console.log("    --buildNumber  Optional. A custom build number to set when archiving the project.")
+    console.log("    --jobName      Optional. The job name used when exporting artifacts. Required if 'archive' action is specified")
     console.log("")
 }
