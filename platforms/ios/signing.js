@@ -63,4 +63,11 @@ function importProvisioningProfile(filepath) {
 
 function importCertificates(filepath) {
     
+    // unlock the keychain
+    
+    // generate the password
+    
+    // import the .p12
+    
+    // lock the keychain
 }
