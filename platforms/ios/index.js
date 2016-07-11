@@ -81,6 +81,16 @@ exports.execute = function (projfile, data, dir, opts) {
     // check if we also want to perform an acrhive 
     if (opts.actions.archive == true) {
         
+        // validate the config.exportDirectory
+        if (opts.config.exportDirectory == null) {
+            throw new Error("Attempting archive task without the exportDirectory being specified in the feetup config.json file.")
+        } 
+        
+        // validate that we have a job name
+        if (opts.jobName == null) {
+            throw new Error("Attempting archive task without the jobName parameter specified")
+        }
+        
         // read the archives from the projfile
         var archives = archivesFromProjfile(projfile, opts)
         
@@ -142,7 +152,8 @@ exports.execute = function (projfile, data, dir, opts) {
         
         // TODO: attempt hockey upload here?
         
-        // TODO: export built products into some other system here.
+        // export built products into the global export directory
+        exporting.exportAllArtifacts(data.exportsPath, path.join(opts.config.exportDirectory, opts.jobName, String(opts.buildNumber)))
     }
 }
 

@@ -1,5 +1,6 @@
 const plist = require("plist")
 const fs = require("fs")
+const fsExtra = require('fs-extra')
 const temp = require("temp").track()
 const xcodebuild = require("./xcodebuild")
 const child_process = require('child_process')
@@ -81,13 +82,21 @@ exports.writeProjfileToDir = function(projfile, dir) {
     fs.writeFileSync(path.join(dir, "Projfile"), json)
 }
 
+exports.exportAllArtifacts = function(fromDir, toDir) {
+    
+    // just pass into fs-extra 
+    fsExtra.copySync(fromDir, toDir, {
+        clobber: true
+    })
+}
+
 function spawnSyncAndThrow(cmd, args, opts) {
     
     // run the command
     var output = child_process.spawnSync(cmd, args, opts)
     
     // check for errors
-    if (output.status != 1) {
+    if (output.status != 0) {
         
         // throw 
         throw new Error("child_process exited with code '" + output.status + "'. Error:", output.error)

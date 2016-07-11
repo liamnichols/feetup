@@ -48,7 +48,7 @@ function spawnSyncAndThrow(cmd, args, opts) {
     var output = child_process.spawnSync(cmd, args, opts)
     
     // check for errors
-    if (output.status != 1) {
+    if (output.status != 0) {
         
         // throw 
         throw new Error("child_process exited with code '" + output.status + "'. Error:", output.error)
