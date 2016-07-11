@@ -138,6 +138,7 @@ platformModule.execute(projfile, platformData, workspace, {
     config: config,
     nightly: nightly,
     buildNumber: buildNumber,
+    jobName: jobName,
     actions: {
         test: shouldTest,
         archive: shouldArchive
