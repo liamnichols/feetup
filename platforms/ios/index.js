@@ -4,6 +4,7 @@ const exporting = require("./exporting")
 const modifying = require("./modifying")
 const XcodeWorkspace = require("./xcworkspace")
 const repo = require("../repo")
+const signing = require("./signing")
 
 /// Reads the decoded Projfile data, validate and returns any relevant data for the actions
 exports.load = function(projfile, dir) {
@@ -31,6 +32,9 @@ exports.execute = function (projfile, data, dir, opts) {
     var ios = projfile.platforms.ios
     
     // TODO: Select the correct version of xcode. 
+    
+    // import signing assets as required
+    signing.import(path.join(dir, "Signing"))
     
     // TODO: Unlock the keychain?
     
