@@ -3,15 +3,17 @@
 const ERR_USAGE = 4001
 const ERR_PROJFILE = 4002
 const ERR_LOAD_PLATFORM = 4003
+const ERR_LOAD_CONFIG = 4004
 
 // parse the arguments
 var argv = require('minimist')(process.argv.slice(2), {
-    string: [ "workspace", "platform" ],
+    string: [ "workspace", "platform", "configPath" ],
     boolean: [ "nightly", "help" ],
     default: {
         "nightly": false,
         "help": false,
-        "platform": "ios"
+        "platform": "ios",
+        "configPath": process.env.HOME + "/.feetup/config.json"
     }
 })
 
@@ -29,6 +31,7 @@ var nightly = argv.nightly
 var platform = argv.platform
 var buildNumber = parseInt(argv.buildNumber)
 var jobName = argv.jobName
+var configPath = argv.configPath
 
 // work out what actions we want to perform based on input args
 if (argv._.indexOf("test") != -1) {
@@ -70,12 +73,27 @@ if (shouldTest) { console.log("  test") }
 if (shouldArchive) { console.log("  archive") }
 console.log("")
 console.log("Options:")
+console.log("  configPath: " + configPath)
 console.log("  nightly: " + nightly)
 console.log("  workspace: " + workspace)
 console.log("  platform: " + platform)
 console.log("  buildNumber: " + buildNumber)
 console.log("  jobName: " + jobName)
-console.log("")
+
+// read the default config
+var config
+try {
+    
+    // load the config
+    config = require("./config")(configPath)
+    
+} catch (err) {
+    
+    // log the message
+    console.error("Unable to read config.json at", configPath)
+    console.error(err.message);
+    process.exit(ERR_LOAD_CONFIG)
+}
 
 // read the profjile
 var projfile
@@ -117,6 +135,7 @@ try {
 
 // execute tasks or the specific platform
 platformModule.execute(projfile, platformData, workspace, {
+    config: config,
     nightly: nightly,
     buildNumber: buildNumber,
     actions: {
@@ -156,9 +175,10 @@ function printUsage(err) {
     console.log("    archive    Will archive and export any builds defined in the workspace")
     console.log("")
     console.log("  Options:")
-    console.log("    --workspace    Required. The directory containing the Projfile")
-    console.log("    --nightly      Optional. When specified, the archive action will work with the special nightly build configuration defined in the Projfile")
-    console.log("    --buildNumber  Optional. A custom build number to set when archiving the project.")
-    console.log("    --jobName      Optional. The job name used when exporting artifacts. Required if 'archive' action is specified")
+    console.log("    --workspace        Required. The directory containing the Projfile")
+    console.log("    --nightly          Optional. When specified, the archive action will work with the special nightly build configuration defined in the Projfile")
+    console.log("    --buildNumber      Optional. A custom build number to set when archiving the project.")
+    console.log("    --jobName          Optional. The job name used when exporting artifacts. Required if 'archive' action is specified")
+    console.log("    --configPath       Optional. The path to the configuration file used for additional settings if in a custom location. Default location is ~/.feetup/config.json")
     console.log("")
 }
