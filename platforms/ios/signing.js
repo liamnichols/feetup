@@ -4,7 +4,7 @@ const fsExtra = require("fs-extra")
 const ProvisioningProfile = require("./mobileprovision")
 
 /// Imports signing assets from the specified directory
-exports.import = function(dir) {
+exports.import = function(dir, keychain) {
     
     // check we have access to this directory
     try {
@@ -31,7 +31,7 @@ exports.import = function(dir) {
         } else if (path.extname(file) == ".p12") {
             
             // import the .p12 into the keychain
-            importCertificates(path.join(dir, file))
+            importCertificate(path.join(dir, file), keychain)
         }
     }
 }
@@ -61,13 +61,11 @@ function importProvisioningProfile(filepath) {
     }
 }
 
-function importCertificates(filepath) {
+function importCertificate(filepath, keychain) {
     
-    // unlock the keychain
+    // work out the password for this p12 file.
+    var password = "" // TODO: work this out
     
-    // generate the password
-    
-    // import the .p12
-    
-    // lock the keychain
+    // import it
+    keychain.import(filepath, password)
 }

@@ -5,6 +5,8 @@ const modifying = require("./modifying")
 const XcodeWorkspace = require("./xcworkspace")
 const repo = require("../repo")
 const signing = require("./signing")
+const Keychain = require("./keychain")
+const randomstring = require("randomstring")
 
 /// Reads the decoded Projfile data, validate and returns any relevant data for the actions
 exports.load = function(projfile, dir) {
@@ -31,134 +33,198 @@ exports.execute = function (projfile, data, dir, opts) {
     // to save us reading the whole projfile each time
     var ios = projfile.platforms.ios
     
-    // TODO: Select the correct version of xcode. 
+    // setup the keychain
+    var keychainPassword = randomstring.generate()
+    var keychain = setupNewKeychain(keychainPassword)
     
-    // import signing assets as required
-    signing.import(path.join(dir, "Signing"))
-    
-    // TODO: Unlock the keychain?
-    
-    // if we're archiving, first thing we do is zip up the entire repo.
-    if (opts.actions.archive == true) {
+    // wrap EVERYTHING from here into a try block as we need to reset the keychain after
+    var caughtError = null
+    try {
         
-        // zip up the repo
-        repo.archive(dir, path.join(data.exportsPath, "source.zip"))
-    }
-    
-    // if we want to test
-    if (opts.actions.test == true) {
+        console.log("[ios] building")
         
-        // make sure there are test schemes defined in the Projfile as we require at least one
-        if (ios.tests.schemes.count == 0) {
-            throw new Error("Attempting to run test action but Projfile doesn't specify any test schemes to run.")
+        // unlock the keychain
+        keychain.unlock(keychainPassword)
+        
+        // import signing assets as required
+        signing.import(path.join(dir, "Signing"), keychain)
+        
+        // TODO: Select the correct version of xcode. 
+        
+        // if we're archiving, first thing we do is zip up the entire repo.
+        if (opts.actions.archive == true) {
+            
+            // zip up the repo
+            repo.archive(dir, path.join(data.exportsPath, "source.zip"))
         }
         
-        // enumerate each scheme as we are about to test it
-        for (schemeName of ios.tests.schemes) {
+        // if we want to test
+        if (opts.actions.test == true) {
             
-            // find the scheme
-            var scheme = findScheme(schemeName, data.workspace)
-        
-            // get the variables we need
-            var workspacePath = data.workspace.path
-            var schemeName = scheme.name
-            var configuration = scheme.actions.test.configuration
-            var derivedDataPath = data.derivedDataPath
-            
-            // now we wnat to test or build this scheme
-            if (ios.tests.dryRun == true) {
-                
-                // use the build command
-                xcodebuild.build(workspacePath, schemeName, configuration, derivedDataPath, true)
-                
-            } else {
-                
-                // read the destinations
-                var destinations = null // TODO: read these into whatever we pass into xcodebuild
-                
-                // use the test command
-                xcodebuild.test(workspacePath, schemeName, configuration, derivedDataPath, destinations)
-            }
-        }
-    }
-    
-    // check if we also want to perform an acrhive 
-    if (opts.actions.archive == true) {
-        
-        // validate the config.exportDirectory
-        if (opts.config.exportDirectory == null) {
-            throw new Error("Attempting archive task without the exportDirectory being specified in the feetup config.json file.")
-        } 
-        
-        // validate that we have a job name
-        if (opts.jobName == null) {
-            throw new Error("Attempting archive task without the jobName parameter specified")
-        }
-        
-        // read the archives from the projfile
-        var archives = archivesFromProjfile(projfile, opts)
-        
-        // make sure we actually have some
-        if (archives.count == 0) {
-            throw new Error("Attempting to run action action but Projfile doesn't specify any archives to run for this configuration.")
-        }
-        
-        // enumerate each archive to perform the actions
-        for (archive of archives) {
-            
-            // find the scheme
-            var res = findSchemeAndProject(archive.scheme, data.workspace)
-            var scheme = res[0]
-            var project = res[1]
-            
-            // get any variables we need
-            var workspacePath = data.workspace.path
-            var schemeName = scheme.name
-            var configuration = scheme.actions.test.configuration
-            var derivedDataPath = data.derivedDataPath
-            var exportsPath = data.exportsPath
-            var archivePath = path.join(exportsPath, schemeName, schemeName + ".xcarchive")
-            var ipaPath = path.join(exportsPath, schemeName)
-            var dSYMsPath = path.join(exportsPath, schemeName, schemeName + ".dsym.zip")
-            var buildSettings = xcodebuild.getBuildSettings(workspacePath, schemeName, configuration)
-            var targets = project.getBuildTargetsForScheme(scheme, "archiving")
-            
-            // reset the git repo
-            repo.reset(dir)
-                
-            // check if we've passed in a build number
-            if (opts.buildNumber > 0) {
-                
-                // set the build number in the info.plist 
-                modifying.setBuildNumber(opts.buildNumber, dir, buildSettings, targets)
+            // make sure there are test schemes defined in the Projfile as we require at least one
+            if (ios.tests.schemes.count == 0) {
+                throw new Error("Attempting to run test action but Projfile doesn't specify any test schemes to run.")
             }
             
-            // tag an icon if needed
-            modifying.tagAppIconInProject(project, buildSettings, targets)
+            // enumerate each scheme as we are about to test it
+            for (schemeName of ios.tests.schemes) {
+                
+                // find the scheme
+                var scheme = findScheme(schemeName, data.workspace)
             
-            // archive the project
-            xcodebuild.archive(workspacePath, schemeName, configuration, derivedDataPath, archivePath, true)
-            
-            // export the ipa archive
-            exporting.exportIPA(archivePath, ipaPath, exportOptionsForArchive(archive))
-            
-            // extract the symbols
-            exporting.exportSymbols(archivePath, dSYMsPath)
-            
-            // optimize the archive (compress and delete)
-            exporting.optimizeArchive(archivePath)
-            
-            // TODO: process the ipa (extract info.plist, icon etc)
+                // get the variables we need
+                var workspacePath = data.workspace.path
+                var schemeName = scheme.name
+                var configuration = scheme.actions.test.configuration
+                var derivedDataPath = data.derivedDataPath
+                
+                // now we wnat to test or build this scheme
+                if (ios.tests.dryRun == true) {
+                    
+                    // use the build command
+                    xcodebuild.build(workspacePath, schemeName, configuration, derivedDataPath, true)
+                    
+                } else {
+                    
+                    // read the destinations
+                    var destinations = null // TODO: read these into whatever we pass into xcodebuild
+                    
+                    // use the test command
+                    xcodebuild.test(workspacePath, schemeName, configuration, derivedDataPath, destinations)
+                }
+            }
         }
         
-        // write projfile out to exports for reference later
-        exporting.writeProjfileToDir(projfile, data.exportsPath)
+        // check if we also want to perform an acrhive 
+        if (opts.actions.archive == true) {
+            
+            // validate the config.exportDirectory
+            if (opts.config.exportDirectory == null) {
+                throw new Error("Attempting archive task without the exportDirectory being specified in the feetup config.json file.")
+            } 
+            
+            // validate that we have a job name
+            if (opts.jobName == null) {
+                throw new Error("Attempting archive task without the jobName parameter specified")
+            }
+            
+            // read the archives from the projfile
+            var archives = archivesFromProjfile(projfile, opts)
+            
+            // make sure we actually have some
+            if (archives.count == 0) {
+                throw new Error("Attempting to run action action but Projfile doesn't specify any archives to run for this configuration.")
+            }
+            
+            // enumerate each archive to perform the actions
+            for (archive of archives) {
+                
+                // find the scheme
+                var res = findSchemeAndProject(archive.scheme, data.workspace)
+                var scheme = res[0]
+                var project = res[1]
+                
+                // get any variables we need
+                var workspacePath = data.workspace.path
+                var schemeName = scheme.name
+                var configuration = scheme.actions.test.configuration
+                var derivedDataPath = data.derivedDataPath
+                var exportsPath = data.exportsPath
+                var archivePath = path.join(exportsPath, schemeName, schemeName + ".xcarchive")
+                var ipaPath = path.join(exportsPath, schemeName)
+                var dSYMsPath = path.join(exportsPath, schemeName, schemeName + ".dsym.zip")
+                var buildSettings = xcodebuild.getBuildSettings(workspacePath, schemeName, configuration)
+                var targets = project.getBuildTargetsForScheme(scheme, "archiving")
+                
+                // reset the git repo
+                repo.reset(dir)
+                    
+                // check if we've passed in a build number
+                if (opts.buildNumber > 0) {
+                    
+                    // set the build number in the info.plist 
+                    modifying.setBuildNumber(opts.buildNumber, dir, buildSettings, targets)
+                }
+                
+                // tag an icon if needed
+                modifying.tagAppIconInProject(project, buildSettings, targets)
+                
+                // archive the project
+                xcodebuild.archive(workspacePath, schemeName, configuration, derivedDataPath, archivePath, true)
+                
+                // export the ipa archive
+                exporting.exportIPA(archivePath, ipaPath, exportOptionsForArchive(archive))
+                
+                // extract the symbols
+                exporting.exportSymbols(archivePath, dSYMsPath)
+                
+                // optimize the archive (compress and delete)
+                exporting.optimizeArchive(archivePath)
+                
+                // TODO: process the ipa (extract info.plist, icon etc)
+            }
+            
+            // write projfile out to exports for reference later
+            exporting.writeProjfileToDir(projfile, data.exportsPath)
+            
+            // TODO: attempt hockey upload here?
+            
+            // export built products into the global export directory
+            exporting.exportAllArtifacts(data.exportsPath, path.join(opts.config.exportDirectory, opts.jobName, String(opts.buildNumber)))
+        }
         
-        // TODO: attempt hockey upload here?
+    } catch (err) {
         
-        // export built products into the global export directory
-        exporting.exportAllArtifacts(data.exportsPath, path.join(opts.config.exportDirectory, opts.jobName, String(opts.buildNumber)))
+        // don't throw the error just yet.
+        caughtError = err
+        
+        // log a warning in the console
+        console.warn("[ios] Caught error but not throwing until the keychain has been reset.")
     }
+    
+    // reset to the default keychain and delete it
+    cleanupKeychain(keychain)
+    
+    // if there was an error, throw it
+    if (caughtError != null) {
+        console.warn("[ios] Throwing caught error now.")
+        throw caughtError
+    }
+}
+
+function cleanupKeychain(keychain) {
+
+    // reset to the default keychain
+    keychain.resetDefault()
+
+    // check if the keychain exists
+    if (keychain.exists()) {
+        
+        // delete it if it exists
+        keychain.delete()
+    }
+}
+
+function setupNewKeychain(password) {
+    
+    // create a new keychain instance in our ios keychain path
+    var keychain = new Keychain(path.join(process.env.HOME, "/.feetup/ios.keychain"))
+    
+    // check if the keychain exists
+    if (keychain.exists()) {
+        
+        // delete it if it exists
+        keychain.delete()
+    }
+    
+    // create the new keychain 
+    keychain.create(password)
+    
+    // make it the default
+    keychain.makeDefault()
+    
+    // return the new keychain
+    return keychain
 }
 
 function findScheme(name, workspace) {
