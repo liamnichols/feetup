@@ -81,6 +81,9 @@ exports.execute = function (projfile, data, dir, opts) {
                 // now we wnat to test or build this scheme
                 if (ios.tests.dryRun == true) {
                     
+                    // if we're doing a dry run.. use the archive config from the scheme
+                    configuration = scheme.actions.archive.configuration
+                    
                     // use the build command
                     xcodebuild.build(workspacePath, schemeName, configuration, derivedDataPath, true)
                     
@@ -127,7 +130,7 @@ exports.execute = function (projfile, data, dir, opts) {
                 // get any variables we need
                 var workspacePath = data.workspace.path
                 var schemeName = scheme.name
-                var configuration = scheme.actions.test.configuration
+                var configuration = scheme.actions.archive.configuration
                 var derivedDataPath = data.derivedDataPath
                 var exportsPath = data.exportsPath
                 var archivePath = path.join(exportsPath, schemeName, schemeName + ".xcarchive")
