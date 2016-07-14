@@ -141,7 +141,7 @@ platformModule.execute(projfile, platformData, workspace, {
     nightly: nightly,
     buildNumber: buildNumber,
     jobName: jobName,
-    exportPathForCurrentTask: getExportPath(config.exportDirectory, jobName, nightly, buildNumber),
+    exportPathForCurrentTask: getExportPathForCurrentTask(shouldArchive, config.exportDirectory, jobName, nightly, buildNumber),
     actions: {
         test: shouldTest,
         archive: shouldArchive
@@ -156,7 +156,12 @@ platformModule.execute(projfile, platformData, workspace, {
 
 
 
-function getExportPath(baseDir, jobName, nightly, buildNumber) {
+function getExportPathForCurrentTask(shouldArchive, baseDir, jobName, nightly, buildNumber) {
+
+    // only make a path if we are performing an archive of some form
+    if (!shouldArchive) {
+        return null
+    }
 
     // check we have the job name and baseDir
     if (baseDir == null) {
