@@ -1,6 +1,6 @@
 {
   "name": "feetup",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Put your feet up and let me do the work.",
   "preferGlobal": true,
   "scripts": {
