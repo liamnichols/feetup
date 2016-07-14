@@ -1,5 +1,7 @@
 #! /usr/bin/env node
 
+const path = require("path")
+
 const ERR_USAGE = 4001
 const ERR_PROJFILE = 4002
 const ERR_LOAD_PLATFORM = 4003
@@ -42,7 +44,7 @@ if (argv._.indexOf("archive") != -1) {
 }
 
 // cleanse build number
-if (buildNumber <= 0) {
+if (buildNumber <= 0 || isNaN(buildNumber)) {
     buildNumber = null
 }
 
@@ -139,6 +141,7 @@ platformModule.execute(projfile, platformData, workspace, {
     nightly: nightly,
     buildNumber: buildNumber,
     jobName: jobName,
+    exportPathForCurrentTask: getExportPath(config.exportDirectory, jobName, nightly, buildNumber),
     actions: {
         test: shouldTest,
         archive: shouldArchive
@@ -153,6 +156,38 @@ platformModule.execute(projfile, platformData, workspace, {
 
 
 
+function getExportPath(baseDir, jobName, nightly, buildNumber) {
+
+    // check we have the job name and baseDir
+    if (baseDir == null) {
+        throw new Error("Unable to create an export path for archive task as no exportDirectory has been specified in config.json")
+    }
+    
+    if (jobName == null) {
+        throw new Error("Unable to create export path for archive task as no jobName has been specified in the arguments")
+    }
+
+    // if we have a nightly build then the location is based on date and not buildNumber
+    if (nightly) {
+        
+        // work out the current date
+        var date = new Date()
+        var dateString = date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear()
+        
+        // return baseDir/jobName/nightly/date
+        return path.join(baseDir, jobName, "nightly", dateString)
+        
+    } else {
+        
+        // check the build number
+        if (buildNumber == null) {
+            throw new Error("Unable to create export path for archive task as no buildNumber has been speicified in the arguments")
+        }
+        
+        // return baseDir/jobName/releases/buildNumber
+        return path.join(baseDir, jobName, "releases", String(buildNumber))
+    }
+}
 
 /// Print the usage with an optional error
 function printUsage(err) {
@@ -178,7 +213,7 @@ function printUsage(err) {
     console.log("  Options:")
     console.log("    --workspace        Required. The directory containing the Projfile")
     console.log("    --nightly          Optional. When specified, the archive action will work with the special nightly build configuration defined in the Projfile")
-    console.log("    --buildNumber      Optional. A custom build number to set when archiving the project.")
+    console.log("    --buildNumber      Optional. A custom build number to set when archiving the project. Required when archive has been specified and --nightly hasn't")
     console.log("    --jobName          Optional. The job name used when exporting artifacts. Required if 'archive' action is specified")
     console.log("    --configPath       Optional. The path to the configuration file used for additional settings if in a custom location. Default location is ~/.feetup/config.json")
     console.log("")

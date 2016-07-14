@@ -41,7 +41,7 @@ exports.execute = function (projfile, data, dir, opts) {
     var caughtError = null
     try {
         
-        console.log("[ios] building")
+        console.log("[ios] starting execution of build tasks")
         
         // unlock the keychain
         keychain.unlock(keychainPassword)
@@ -173,7 +173,7 @@ exports.execute = function (projfile, data, dir, opts) {
             // TODO: attempt hockey upload here?
             
             // export built products into the global export directory
-            exporting.exportAllArtifacts(data.exportsPath, path.join(opts.config.exportDirectory, opts.jobName, String(opts.buildNumber)))
+            exporting.exportAllArtifacts(data.exportsPath, opts.exportPathForCurrentTask)
         }
         
     } catch (err) {
